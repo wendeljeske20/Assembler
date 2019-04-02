@@ -13,24 +13,15 @@ public class Screen : MonoBehaviour
         texture = new Texture2D(textureSize, textureSize);
         Sprite sprite = Sprite.Create(texture, new Rect(0, 0, textureSize, textureSize), Vector2.zero);
         sprite.name = "newSprite";
-        
         GetComponent<Image>().sprite = sprite;
-
-        //for (int y = 0; y < texture.height; y++)
-        //{
-        //    for (int x = 0; x < texture.width; x++)
-        //    {
-        //        SetPixel(x, y, Color.white);
-        //    }
-        //}
-        //SetPixel(20, 10, Color.red);
+       
     }
 
     private void Update()
     {
         
-        //SetPixel(i, 30, Color.red);
-        //i++;
+        SetPixel(i, 30, Color.blue);
+        i++;
     }
 
     void SetPixel(int x, int y, Color color)
