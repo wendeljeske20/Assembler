@@ -1,0 +1,17 @@
+.data
+
+VAR1 #40, #7
+
+VAR2 #41, #17
+VAR3 #42, #27
+
+.enddata
+
+.code
+LD VAR1
+ADD #5
+PX
+JMP 2
+.endcode
+VAR
+VAR
