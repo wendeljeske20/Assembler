@@ -7,22 +7,21 @@ using System;
 
 public class Interpreter : MonoBehaviour
 {
+    //public Image cursor;
     public Text interpreterText;
 
     GameObject[] memorySlot;
     public GameObject pcSlot, ac1Slot, ac2Slot, ac3Slot;
 
     Memory[] memories;
-    public int pc, ac1, ac2, ac3;
+    int pc;
+    public int ac1, ac2, ac3;
 
-    public List<string> splitedTexts = new List<string>();
+    public List<string> splittedTexts = new List<string>();
 
     Dictionary<string, int> variables = new Dictionary<string, int>();
-
-
-    //Dictionary<string, int> variables = new Dictionary<string, int>();
-
-
+    
+ 
 
     void Start()
     {
@@ -37,7 +36,9 @@ public class Interpreter : MonoBehaviour
 
         ReadFile(Application.dataPath + "/text.txt");
         StoreInstructionsInMemory();
+
         StartCoroutine(Decode());
+
 
 
     }
@@ -45,7 +46,7 @@ public class Interpreter : MonoBehaviour
     private void Update()
     {
 
-
+        //cursor.GetComponent<RectTransform>().localPosition = new Vector3(0, 200 + pc * 10, 0);
         UpdateMemoriesSlotText();
         UpdateRegistersText();
     }
@@ -64,36 +65,41 @@ public class Interpreter : MonoBehaviour
         }
         memories[pc].transform.parent.GetComponent<Image>().color = Color.green;
 
-        Memory nextMemory = memories[pc + 1];
-        //Debug.Log(nextMemoryData);
+        Memory firstParameterMemory = memories[pc + 1];
+        Memory secondParameterMemory = memories[pc + 2];
 
         switch (memories[pc].name)
         {
             case "LD":
 
-                pc = Load(nextMemory);
+                pc = Load(firstParameterMemory);
 
                 break;
             case "ADD":
 
-                pc = Add(ref ac1, nextMemory.data);
+                pc = Add(firstParameterMemory, secondParameterMemory);
                 break;
             case "SUB":
 
-                pc = Sub(ref ac1, nextMemory.data);
+                pc = Sub(firstParameterMemory, secondParameterMemory);
                 break;
             case "ST":
 
-                pc = Set(nextMemory.data);
+                pc = Set(firstParameterMemory);
+                break;
+            case "JZ":
+
+                pc = Jz(firstParameterMemory, secondParameterMemory);
+                //StartCoroutine(Decode());
                 break;
             case "JMP":
 
-                Jmp(nextMemory.data);
-                StartCoroutine(Decode());
-                yield break;
+                Jmp(firstParameterMemory);
+                //StartCoroutine(Decode());
+                break;
             case "HALT":
-                Jmp(memories.Length - 1);
-                StartCoroutine(Decode());
+                //Jmp(memories.Length - 1);
+                // StartCoroutine(Decode());
                 yield break;
             default:
                 Debug.LogError("Command " + memories[pc].name + " not found");
@@ -131,21 +137,14 @@ public class Interpreter : MonoBehaviour
 
 
 
-    int Set(int data)
+    int Set(Memory memory)
     {
-        ac1 = data;
+        int readPos = variables[memory.name];
+        memories[readPos].data = ac2;
+
         return pc + 1;
     }
-    int Set2(int data)
-    {
-        ac2 = data;
-        return pc + 1;
-    }
-    int Set3(int data)
-    {
-        ac3 = data;
-        return pc + 1;
-    }
+   
 
     void Print(int ac)
     {
@@ -168,6 +167,62 @@ public class Interpreter : MonoBehaviour
     }
 
 
+
+
+    int Add(Memory param1, Memory param2)
+    {
+
+        int value = 0;
+
+        if (param2.name == "AC1")
+            value = ac1;
+        else if (param2.name == "AC2")
+            value = ac2;
+        else if (param2.name == "AC3")
+            value = ac3;
+        else
+            value = param2.data;
+
+        if (param1.name == "AC1")
+            ac1 += value;
+        else if (param1.name == "AC2")
+            ac2 += value;
+        else if (param1.name == "AC3")
+            ac3 += value;
+        else
+            Debug.LogError("It was not possible to add because first parameter needs to receive an Accumulator");
+
+
+        return pc + 2;
+    }
+
+    int Sub(Memory param1, Memory param2)
+    {
+
+        int value = 0;
+
+        if (param2.name == "AC1")
+            value = ac1;
+        else if (param2.name == "AC2")
+            value = ac2;
+        else if (param2.name == "AC3")
+            value = ac3;
+        else
+            value = param2.data;
+
+        if (param1.name == "AC1")
+            ac1 -= value;
+        else if (param1.name == "AC2")
+            ac2 -= value;
+        else if (param1.name == "AC3")
+            ac3 -= value;
+        else
+            Debug.LogError("It was not possible to add because first parameter needs to receive an Accumulator");
+
+        //falta testar se começa com # ou se é um endereço
+        return pc + 2;
+    }
+
     void Pos()
     {
         int r = ac1;
@@ -176,57 +231,54 @@ public class Interpreter : MonoBehaviour
 
     }
 
-
-    int Add(ref int ac, int value)
+    int GetAccumulatorData(Memory param)
     {
-        Debug.Log("ADD");
-        ac += value;
-        return pc + 1;
+        int data = 0;
+
+        if (param.name == "AC1")
+            data = ac1;
+        else if (param.name == "AC2")
+            data = ac2;
+        else if (param.name == "AC3")
+            data = ac3;
+        else
+            Debug.LogError("It was not possible to add because first parameter needs to receive an Accumulator");
+
+        return data;
     }
 
-    int Sub(ref int ac, int value)
+    int Jz(Memory param1, Memory param2)
     {
-        ac -= value;
-        return pc + 1;
+        int data = GetAccumulatorData(param1);
+
+        if (data == 0)
+        {
+            return param2.data - 1;
+        }
+
+        return pc + 2;
     }
 
-    void Jz(int ac, int pos)
+    int Jnz(Memory param1, Memory param2)
     {
-        // Debug.Log("Jz");
-        // if (ac)
+        int data = GetAccumulatorData(param1);
+
+        if (data != 0)
         {
-            if (ac == 0)
-                pc = pos;
-        }
-        //  else
-        {
-            //   Debug.Log("ac is null");
+            return param2.data - 1;
         }
 
-
-    }
-
-    void Jnz(int ac, int pos)
-    {
-        //Debug.Log("Jnz");
-        //if (ac)
-        {
-            if (ac != 0)
-                pc = pos;
-        }
-        //else
-        {
-            //   Debug.Log("ac is null");
-        }
+        return pc + 2;
 
     }
 
-    void Jmp(int pos)
+    void Jmp(Memory param2)
     {
-        pc = pos;
+        pc = param2.data - 1;
         //Debug.Log("jmp " + pos);
         //int result = int.Parse(ac.name.Remove(0, 1)) - int.Parse(value);
         //ac.name = result.ToString();
+
     }
 
 
@@ -260,14 +312,14 @@ public class Interpreter : MonoBehaviour
         StreamReader streamReader = new StreamReader(filePath);
         string text = streamReader.ReadToEnd(); //armazena todo o texto em uma string
         interpreterText.text = text;
-        string[] splited = text.Split(' ', ',', '\n'); //separa cada strings do texto e armazena no array
+        string[] splitted = text.Split(' ', ',', '\n'); //separa cada strings do texto e armazena no array
 
-        for (int i = 0; i < splited.Length; i++)
+        for (int i = 0; i < splitted.Length; i++)
         {
-            splited[i] = splited[i].Trim(); //remove os espaços das strings
-            if (splited[i] != "")
+            splitted[i] = splitted[i].Trim(); //remove os espaços das strings
+            if (splitted[i] != "")
             {
-                splitedTexts.Add(splited[i]); //se a string nao for vazia, adiciona cada elemento do array na lista
+                splittedTexts.Add(splitted[i]); //se a string nao for vazia, adiciona cada elemento do array na lista
             }
 
         }
@@ -279,26 +331,24 @@ public class Interpreter : MonoBehaviour
     void StoreInstructionsInMemory()
     {
         int startDataIndex = 0, endDataIndex = 0, startCodeIndex = 0, endCodeIndex = 0;
-    
-        for (int i = 0; i < splitedTexts.Count; i++)
+
+        for (int i = 0; i < splittedTexts.Count; i++)
         {
-            if (splitedTexts[i] == ".code")
+            if (splittedTexts[i] == ".code")
             {
                 startCodeIndex = i + 1;
             }
-            else if (splitedTexts[i] == ".endcode")
+            else if (splittedTexts[i] == ".endcode")
             {
                 endCodeIndex = i;
             }
-            else if (splitedTexts[i] == ".data")
+            else if (splittedTexts[i] == ".data")
             {
                 startDataIndex = i + 1;
-                Debug.Log(startDataIndex);
             }
-            else if (splitedTexts[i] == ".enddata")
+            else if (splittedTexts[i] == ".enddata")
             {
                 endDataIndex = i;
-                Debug.Log(endDataIndex);
             }
 
 
@@ -309,7 +359,7 @@ public class Interpreter : MonoBehaviour
         {
             if (i < memories.Length)
             {
-                memories[i].name = splitedTexts[i + startCodeIndex];
+                memories[i].name = splittedTexts[i + startCodeIndex];
                 memories[i].UpdateData();
             }
         }
@@ -317,9 +367,9 @@ public class Interpreter : MonoBehaviour
         for (int i = startDataIndex; i < endDataIndex; i += 3)
         {
 
-            string nameText = splitedTexts[i];
-            string memoryPosText = splitedTexts[i + 1];
-            string dataText = splitedTexts[i + 2];
+            string nameText = splittedTexts[i];
+            string memoryPosText = splittedTexts[i + 1];
+            string dataText = splittedTexts[i + 2];
 
             int memoryPos = int.Parse(memoryPosText.Substring(1, memoryPosText.Length - 1)); //remove o # da frente da string
             memories[memoryPos].name = nameText;
