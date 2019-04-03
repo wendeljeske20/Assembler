@@ -21,8 +21,8 @@ public class Interpreter : MonoBehaviour
 
     Dictionary<string, int> variables = new Dictionary<string, int>();
 
- 
-    
+
+
 
     public Screen screen;
 
@@ -56,7 +56,7 @@ public class Interpreter : MonoBehaviour
 
     IEnumerator Decode()
     {
-        yield return new WaitForSeconds(0.000000001f);
+        yield return new WaitForSeconds(0.001f);
 
         for (int i = 0; i < memories.Length; i++)
         {
@@ -387,7 +387,7 @@ public class Interpreter : MonoBehaviour
         StreamReader streamReader = new StreamReader(filePath);
         string text = streamReader.ReadToEnd(); //armazena todo o texto em uma string
         interpreterText.text = text;
-        string[] splitted = text.Split(' ', ',', '\n'); //separa cada strings do texto e armazena no array
+        string[] splitted = text.Split(' ', ',', ':', '\n'); //separa cada strings do texto e armazena no array
 
         for (int i = 0; i < splitted.Length; i++)
         {
@@ -408,22 +408,24 @@ public class Interpreter : MonoBehaviour
 
         for (int i = 0; i < splittedTexts.Count; i++)
         {
-            if (splittedTexts[i] == ".code")
+            switch (splittedTexts[i])
             {
-                startCodeIndex = i + 1;
+                case ".code":
+                    startCodeIndex = i + 1;
+                    break;
+                case ".endcode":
+                    endCodeIndex = i;
+                    break;
+                case ".data":
+                    startDataIndex = i + 1;
+                    break;
+                case ".enddata":
+                    endDataIndex = i;
+                    break;
+                default:
+                    break;
             }
-            else if (splittedTexts[i] == ".endcode")
-            {
-                endCodeIndex = i;
-            }
-            else if (splittedTexts[i] == ".data")
-            {
-                startDataIndex = i + 1;
-            }
-            else if (splittedTexts[i] == ".enddata")
-            {
-                endDataIndex = i;
-            }
+
 
 
         }

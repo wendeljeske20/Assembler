@@ -6,31 +6,42 @@ using UnityEngine.UI;
 public class Screen : MonoBehaviour
 {
     Texture2D texture;
-    public int textureSize = 192;
-    int i;
+    Vector2 textureSize;
     public Vector2Int drawingCursorPosition;
-    public Image drawingCursor;
+    public GameObject drawingCursor;
     void Start()
     {
-        
-        texture = new Texture2D(textureSize, textureSize);
-        Sprite sprite = Sprite.Create(texture, new Rect(0, 0, textureSize, textureSize), new Vector2(0.5f,0.5f));
+        textureSize.x = GetComponent<RectTransform>().rect.width;
+        textureSize.y = GetComponent<RectTransform>().rect.height;
+
+        texture = new Texture2D((int)textureSize.x, (int)textureSize.y);
+
+
+
+        Sprite sprite = Sprite.Create(texture, new Rect(0, 0, textureSize.x, textureSize.y), Vector2.zero);
+
         sprite.name = "newSprite";
         GetComponent<Image>().sprite = sprite;
-        drawingCursorPosition = new Vector2Int(textureSize / 2, textureSize / 2);
+        ClearScreen();
     }
 
-    private void Update()
+    public void ClearScreen()
     {
-        
-        //SetPixel(i, 30, Color.blue);
-        i++;
+        for (int i = 0; i < textureSize.x; i++)
+        {
+            for (int j = 0; j < textureSize.y; j++)
+            {
+                texture.SetPixel(i, j, Color.white);
+            }
+        }
+        texture.Apply();
     }
     public void DrawCursor()
     {
-        drawingCursor.GetComponent<RectTransform>().localPosition = new Vector2(drawingCursorPosition.x - textureSize / 2, drawingCursorPosition.y - textureSize / 2);
+        drawingCursor.GetComponent<RectTransform>().localPosition = new Vector2(drawingCursorPosition.x, drawingCursorPosition.y);
     }
-    public void DrawPixel(int r,int g, int b)
+
+    public void DrawPixel(int r, int g, int b)
     {
         Color color = new Color(r, g, b);
         SetPixel(drawingCursorPosition.x, drawingCursorPosition.y, color);
