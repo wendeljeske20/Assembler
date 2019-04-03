@@ -36,6 +36,7 @@ public class Screen : MonoBehaviour
         }
         texture.Apply();
     }
+
     public void DrawCursor()
     {
         drawingCursor.GetComponent<RectTransform>().localPosition = new Vector2(drawingCursorPosition.x, drawingCursorPosition.y);
@@ -46,6 +47,7 @@ public class Screen : MonoBehaviour
         Color color = new Color(r, g, b);
         SetPixel(drawingCursorPosition.x, drawingCursorPosition.y, color);
     }
+
     public void SetPixel(int x, int y, Color color)
     {
         texture.SetPixel(x, y, color);

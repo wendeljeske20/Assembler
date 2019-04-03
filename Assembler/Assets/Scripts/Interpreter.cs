@@ -7,7 +7,15 @@ using System;
 
 public class Interpreter : MonoBehaviour
 {
+
+    int startDataIndex = 0, endDataIndex = 0, startCodeIndex = 0, endCodeIndex = 0;
+
+    public GameObject variablePanel;
+    public GameObject variableSectionPrefab;
+    List<GameObject> varSections = new List<GameObject>();
+
     //public Image cursor;
+    public float updateInterval;
     public Text interpreterText;
 
     GameObject[] memorySlot;
@@ -15,11 +23,13 @@ public class Interpreter : MonoBehaviour
 
     Memory[] memories;
     int pc;
-    public int ac1, ac2, ac3;
+    public float ac1, ac2, ac3;
 
     public List<string> splittedTexts = new List<string>();
 
+   
     Dictionary<string, int> variables = new Dictionary<string, int>();
+    List<string> variableNames = new List<string>();
 
 
 
@@ -28,6 +38,7 @@ public class Interpreter : MonoBehaviour
 
     void Start()
     {
+
         pc = 0;
 
         memorySlot = GameObject.FindGameObjectsWithTag("MemorySlot");
@@ -48,15 +59,16 @@ public class Interpreter : MonoBehaviour
 
         //cursor.GetComponent<RectTransform>().localPosition = new Vector3(0, 200 + pc * 10, 0);
         UpdateMemoriesSlotText();
+        UpdateVariablesSlotText();
         UpdateRegistersText();
     }
 
 
-
+    
 
     IEnumerator Decode()
     {
-        yield return new WaitForSeconds(0.001f);
+        yield return new WaitForSeconds(updateInterval);
 
         for (int i = 0; i < memories.Length; i++)
         {
@@ -85,14 +97,7 @@ public class Interpreter : MonoBehaviour
                 pc = Load3(firstParameterMemory);
 
                 break;
-            case "ADD":
 
-                pc = Add(firstParameterMemory, secondParameterMemory);
-                break;
-            case "SUB":
-
-                pc = Sub(firstParameterMemory, secondParameterMemory);
-                break;
             case "ST":
 
                 pc = Set(firstParameterMemory);
@@ -105,6 +110,34 @@ public class Interpreter : MonoBehaviour
 
                 pc = Set3(firstParameterMemory);
                 break;
+            case "ADD":
+
+                pc = Add(firstParameterMemory, secondParameterMemory);
+                break;
+            case "SUB":
+
+                pc = Sub(firstParameterMemory, secondParameterMemory);
+                break;
+            case "POS":
+
+                pc = Pos();
+                break;
+            case "PXL":
+
+                pc = Pxl();
+                break;
+            case "CLR":
+
+                pc = Clear();
+                break;
+            case "COS":
+
+                pc = Cos(firstParameterMemory);
+                break;
+            case "SIN":
+
+                pc = Sin(firstParameterMemory);
+                break;
             case "JZ":
 
                 pc = Jz(firstParameterMemory, secondParameterMemory);
@@ -115,17 +148,8 @@ public class Interpreter : MonoBehaviour
                 Jmp(firstParameterMemory);
                 //StartCoroutine(Decode());
                 break;
-            case "POS":
 
-                pc = POS();
-                break;
-            case "PXL":
-
-                pc = PXL();
-                break;
             case "HALT":
-                //Jmp(memories.Length - 1);
-                // StartCoroutine(Decode());
                 yield break;
             default:
                 Debug.LogError("Command " + memories[pc].name + " not found");
@@ -187,18 +211,7 @@ public class Interpreter : MonoBehaviour
         return pc + 1; // retorna quantas posicões o pc deve pular
     }
 
-    int POS()
-    {
-        screen.drawingCursorPosition = new Vector2Int(ac1, ac2);
-        screen.DrawCursor();
 
-        return pc;
-    }
-    int PXL()
-    {
-        screen.DrawPixel(ac1, ac2, ac3);
-        return pc;
-    }
     int Set(Memory memory)
     {
         int readPos = variables[memory.name];
@@ -221,25 +234,6 @@ public class Interpreter : MonoBehaviour
         return pc + 1;
     }
 
-    void Print(int ac)
-    {
-        Debug.Log("Print");
-        //if (ac)
-        {
-            Debug.Log(ac);
-        }
-        //else
-        {
-            //Debug.Log("ac is null");
-        }
-
-    }
-
-    void Halt()
-    {
-
-
-    }
 
 
 
@@ -247,7 +241,7 @@ public class Interpreter : MonoBehaviour
     int Add(Memory param1, Memory param2)
     {
 
-        int value = 0;
+        float value = 0;
 
         if (param2.name == "AC1")
             value = ac1;
@@ -274,7 +268,7 @@ public class Interpreter : MonoBehaviour
     int Sub(Memory param1, Memory param2)
     {
 
-        int value = 0;
+        float value = 0;
 
         if (param2.name == "AC1")
             value = ac1;
@@ -298,17 +292,40 @@ public class Interpreter : MonoBehaviour
         return pc + 2;
     }
 
-    void Pos()
+    int Pos()
     {
-        int r = ac1;
-        int g = ac2;
-        int b = ac3;
+        screen.drawingCursorPosition = new Vector2Int((int)ac1, (int)ac2);
+        screen.DrawCursor();
 
+        return pc;
+    }
+    int Pxl()
+    {
+        screen.DrawPixel((int)ac1, (int)ac2, (int)ac3);
+        return pc;
+    }
+
+    int Clear()
+    {
+        screen.ClearScreen();
+        return pc;
+    }
+
+    int Cos(Memory param1)
+    {
+        ac1 = Mathf.Cos(param1.data * Mathf.Deg2Rad) * ac2;
+        return pc + 1;
+    }
+
+    int Sin(Memory param1)
+    {
+        ac1 = Mathf.Sin(param1.data * Mathf.Deg2Rad) * ac2;
+        return pc + 1;
     }
 
     int GetAccumulatorData(Memory param)
     {
-        int data = 0;
+        float data = 0;
 
         if (param.name == "AC1")
             data = ac1;
@@ -319,7 +336,7 @@ public class Interpreter : MonoBehaviour
         else
             Debug.LogError("It was not possible to add because first parameter needs to receive an Accumulator");
 
-        return data;
+        return (int)data;
     }
 
     int Jz(Memory param1, Memory param2)
@@ -328,7 +345,7 @@ public class Interpreter : MonoBehaviour
 
         if (data == 0)
         {
-            return param2.data - 1;
+            return (int)param2.data - 1;
         }
 
         return pc + 2;
@@ -340,7 +357,7 @@ public class Interpreter : MonoBehaviour
 
         if (data != 0)
         {
-            return param2.data - 1;
+            return (int)param2.data - 1;
         }
 
         return pc + 2;
@@ -349,7 +366,7 @@ public class Interpreter : MonoBehaviour
 
     void Jmp(Memory param2)
     {
-        pc = param2.data - 1;
+        pc = (int)param2.data - 1;
         //Debug.Log("jmp " + pos);
         //int result = int.Parse(ac.name.Remove(0, 1)) - int.Parse(value);
         //ac.name = result.ToString();
@@ -368,6 +385,22 @@ public class Interpreter : MonoBehaviour
             dataText.text = memories[i].name;
             positionText.text = i.ToString();
         }
+    }
+
+    void UpdateVariablesSlotText()
+    {
+        for (int i = 0; i < variableNames.Count; i++)
+        {
+
+            
+            GameObject varSlot = varSections[i].transform.Find("SlotBackGround").Find("Slot").gameObject;
+            varSlot.transform.Find("NameText").GetComponent<Text>().text = variableNames[i];
+            varSlot.transform.Find("DataText").GetComponent<Text>().text = memories[variables[variableNames[i]]].data.ToString();
+            //varSections[i].
+
+        }
+        
+        //varSlot.transform.Find("DataText").GetComponent<Text>().text = memories[memoryPos].data.ToString();
     }
 
     void UpdateRegistersText()
@@ -404,7 +437,7 @@ public class Interpreter : MonoBehaviour
     }
     void StoreInstructionsInMemory()
     {
-        int startDataIndex = 0, endDataIndex = 0, startCodeIndex = 0, endCodeIndex = 0;
+        
 
         for (int i = 0; i < splittedTexts.Count; i++)
         {
@@ -440,6 +473,8 @@ public class Interpreter : MonoBehaviour
             }
         }
 
+       
+
         for (int i = startDataIndex; i < endDataIndex; i += 3)
         {
 
@@ -452,8 +487,20 @@ public class Interpreter : MonoBehaviour
             memories[memoryPos].data = int.Parse(dataText.Substring(1, dataText.Length - 1)); //remove o # da frente da string
 
             variables.Add(nameText, memoryPos);
+            variableNames.Add(nameText);
 
+            GameObject varSection = Instantiate(variableSectionPrefab, transform.position, Quaternion.identity);
+            varSection.transform.SetParent(variablePanel.transform);
+            varSection.transform.localScale = Vector3.one;
+            //varSection.transform.Find("SlotBackGround").Find("Slot").Find("NameText").GetComponent<Text>().text = nameText;
+
+            
+
+            varSections.Add(varSection);
         }
+
+
+
     }
 }
 
