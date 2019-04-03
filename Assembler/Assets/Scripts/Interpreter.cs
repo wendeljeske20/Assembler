@@ -56,7 +56,7 @@ public class Interpreter : MonoBehaviour
 
     IEnumerator Decode()
     {
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.000000001f);
 
         for (int i = 0; i < memories.Length; i++)
         {
@@ -80,6 +80,11 @@ public class Interpreter : MonoBehaviour
                 pc = Load2(firstParameterMemory);
 
                 break;
+            case "LD3":
+
+                pc = Load3(firstParameterMemory);
+
+                break;
             case "ADD":
 
                 pc = Add(firstParameterMemory, secondParameterMemory);
@@ -91,6 +96,14 @@ public class Interpreter : MonoBehaviour
             case "ST":
 
                 pc = Set(firstParameterMemory);
+                break;
+            case "ST2":
+
+                pc = Set2(firstParameterMemory);
+                break;
+            case "ST3":
+
+                pc = Set3(firstParameterMemory);
                 break;
             case "JZ":
 
@@ -105,6 +118,10 @@ public class Interpreter : MonoBehaviour
             case "POS":
 
                 pc = POS();
+                break;
+            case "PXL":
+
+                pc = PXL();
                 break;
             case "HALT":
                 //Jmp(memories.Length - 1);
@@ -156,22 +173,53 @@ public class Interpreter : MonoBehaviour
         }
         return pc + 1; // retorna quantas posicões o pc deve pular
     }
+    int Load3(Memory memory)
+    {
+        if (variables.ContainsKey(memory.name))
+        {
+            int readPos = variables[memory.name]; //procura a variavel no dicionario e armazena o endereço dela
+            ac3 = memories[readPos].data; //recebe o valor da variavel
+        }
+        else
+        {
+            Debug.LogError("Key " + memory.name + " not found");
+        }
+        return pc + 1; // retorna quantas posicões o pc deve pular
+    }
 
     int POS()
     {
         screen.drawingCursorPosition = new Vector2Int(ac1, ac2);
         screen.DrawCursor();
+
         return pc;
     }
-
+    int PXL()
+    {
+        screen.DrawPixel(ac1, ac2, ac3);
+        return pc;
+    }
     int Set(Memory memory)
+    {
+        int readPos = variables[memory.name];
+        memories[readPos].data = ac1;
+
+        return pc + 1;
+    }
+    int Set2(Memory memory)
     {
         int readPos = variables[memory.name];
         memories[readPos].data = ac2;
 
         return pc + 1;
     }
-   
+    int Set3(Memory memory)
+    {
+        int readPos = variables[memory.name];
+        memories[readPos].data = ac3;
+
+        return pc + 1;
+    }
 
     void Print(int ac)
     {

@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class Screen : MonoBehaviour
 {
     Texture2D texture;
-    public int textureSize = 64;
+    public int textureSize = 192;
     int i;
     public Vector2Int drawingCursorPosition;
     public Image drawingCursor;
@@ -28,7 +28,12 @@ public class Screen : MonoBehaviour
     }
     public void DrawCursor()
     {
-        drawingCursor.GetComponent<RectTransform>().localPosition = new Vector2(drawingCursorPosition.x - 32, drawingCursorPosition.y - 32);
+        drawingCursor.GetComponent<RectTransform>().localPosition = new Vector2(drawingCursorPosition.x - textureSize / 2, drawingCursorPosition.y - textureSize / 2);
+    }
+    public void DrawPixel(int r,int g, int b)
+    {
+        Color color = new Color(r, g, b);
+        SetPixel(drawingCursorPosition.x, drawingCursorPosition.y, color);
     }
     public void SetPixel(int x, int y, Color color)
     {

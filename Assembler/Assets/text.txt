@@ -1,6 +1,9 @@
 .data
 VAR1 #40, #32
 VAR2 #41, #32
+VAR3 #42, #0
+VAR4 #43, #0
+VAR5 #44, #0
 .enddata
 
 .code
@@ -8,6 +11,12 @@ LD VAR1
 LD2 VAR2
 ADD AC1 #1
 ADD AC2 #1
+ST VAR1
+ST2 VAR2
 POS
-JMP 4
+LD VAR3
+LD2 VAR4
+LD3 VAR5
+PXL
+JMP 0
 .endcode
