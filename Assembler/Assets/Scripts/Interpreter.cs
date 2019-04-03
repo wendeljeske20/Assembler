@@ -20,8 +20,11 @@ public class Interpreter : MonoBehaviour
     public List<string> splittedTexts = new List<string>();
 
     Dictionary<string, int> variables = new Dictionary<string, int>();
-    
+
  
+    
+
+    public Screen screen;
 
     void Start()
     {
@@ -38,9 +41,6 @@ public class Interpreter : MonoBehaviour
         StoreInstructionsInMemory();
 
         StartCoroutine(Decode());
-
-
-
     }
 
     private void Update()
@@ -75,6 +75,11 @@ public class Interpreter : MonoBehaviour
                 pc = Load(firstParameterMemory);
 
                 break;
+            case "LD2":
+
+                pc = Load2(firstParameterMemory);
+
+                break;
             case "ADD":
 
                 pc = Add(firstParameterMemory, secondParameterMemory);
@@ -96,6 +101,10 @@ public class Interpreter : MonoBehaviour
 
                 Jmp(firstParameterMemory);
                 //StartCoroutine(Decode());
+                break;
+            case "POS":
+
+                pc = POS();
                 break;
             case "HALT":
                 //Jmp(memories.Length - 1);
@@ -134,8 +143,26 @@ public class Interpreter : MonoBehaviour
         }
         return pc + 1; // retorna quantas posicões o pc deve pular
     }
+    int Load2(Memory memory)
+    {
+        if (variables.ContainsKey(memory.name))
+        {
+            int readPos = variables[memory.name]; //procura a variavel no dicionario e armazena o endereço dela
+            ac2 = memories[readPos].data; //recebe o valor da variavel
+        }
+        else
+        {
+            Debug.LogError("Key " + memory.name + " not found");
+        }
+        return pc + 1; // retorna quantas posicões o pc deve pular
+    }
 
-
+    int POS()
+    {
+        screen.drawingCursorPosition = new Vector2Int(ac1, ac2);
+        screen.DrawCursor();
+        return pc;
+    }
 
     int Set(Memory memory)
     {
@@ -327,7 +354,6 @@ public class Interpreter : MonoBehaviour
 
         streamReader.Close();
     }
-
     void StoreInstructionsInMemory()
     {
         int startDataIndex = 0, endDataIndex = 0, startCodeIndex = 0, endCodeIndex = 0;

@@ -1,13 +1,13 @@
 .data
-VAR1 #40, #3
-VAR2 #41, #17
-VAR3 #42, #27
+VAR1 #40, #32
+VAR2 #41, #32
 .enddata
 
 .code
 LD VAR1
-SUB AC1 #1
-ST VAR1
-JZ AC1 0
-JMP 2
+LD2 VAR2
+ADD AC1 #1
+ADD AC2 #1
+POS
+JMP 4
 .endcode
