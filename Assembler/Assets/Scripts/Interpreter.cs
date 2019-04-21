@@ -32,9 +32,11 @@ public class Interpreter : MonoBehaviour
     List<string> variableNames = new List<string>();
 
 
-
+    public InputField inputField;
 
     public Screen screen;
+
+    bool waitingtext = false;
 
     void Start()
     {
@@ -61,6 +63,11 @@ public class Interpreter : MonoBehaviour
         UpdateMemoriesSlotText();
         UpdateVariablesSlotText();
         UpdateRegistersText();
+
+        if(waitingtext)
+        {
+            In();
+        }
     }
 
 
@@ -112,11 +119,11 @@ public class Interpreter : MonoBehaviour
                 break;
             case "ADD":
 
-                pc = Add(firstParameterMemory, secondParameterMemory);
+                pc = Add(firstParameterMemory);
                 break;
             case "SUB":
 
-                pc = Sub(firstParameterMemory, secondParameterMemory);
+                pc = Sub(firstParameterMemory);
                 break;
             case "POS":
 
@@ -148,6 +155,13 @@ public class Interpreter : MonoBehaviour
                 Jmp(firstParameterMemory);
                 //StartCoroutine(Decode());
                 break;
+            case "RND":
+                pc = Rnd(firstParameterMemory);
+                break;
+            case "IN":
+                waitingtext = true;
+                pc = In();
+                yield break;
 
             case "HALT":
                 yield break;
@@ -169,6 +183,28 @@ public class Interpreter : MonoBehaviour
 
         StartCoroutine(Decode());
 
+    }
+
+    int In()
+    {
+        string aux;
+        Memory memory = memories[pc];
+        if (Input.GetKeyDown(KeyCode.Return))
+        {
+            waitingtext = false;
+            aux = inputField.GetComponentInChildren<Text>().GetComponent<Text>().text;
+            int readPos = variables[memory.name];
+            float.TryParse(aux,out memories[readPos].data);
+            pc++;
+            StartCoroutine(Decode());
+        }
+        return pc + 1;
+    }
+    int Rnd(Memory memory)
+    {
+        int readPos = variables[memory.name];
+        memories[readPos].data = UnityEngine.Random.Range((int)ac1,(int)ac2);
+        return pc + 1;
     }
 
     int Load(Memory memory)
@@ -238,57 +274,28 @@ public class Interpreter : MonoBehaviour
 
 
 
-    int Add(Memory param1, Memory param2)
+    int Add(Memory param1)
     {
 
         float value = 0;
 
-        if (param2.name == "AC1")
-            value = ac1;
-        else if (param2.name == "AC2")
-            value = ac2;
-        else if (param2.name == "AC3")
-            value = ac3;
-        else
-            value = param2.data;
+       
+        value = param1.data;
 
-        if (param1.name == "AC1")
-            ac1 += value;
-        else if (param1.name == "AC2")
-            ac2 += value;
-        else if (param1.name == "AC3")
-            ac3 += value;
-        else
-            Debug.LogError("It was not possible to add because first parameter needs to receive an Accumulator");
-
+        ac1 += value;
 
         return pc + 2;
     }
 
-    int Sub(Memory param1, Memory param2)
+    int Sub(Memory param1)
     {
 
         float value = 0;
 
-        if (param2.name == "AC1")
-            value = ac1;
-        else if (param2.name == "AC2")
-            value = ac2;
-        else if (param2.name == "AC3")
-            value = ac3;
-        else
-            value = param2.data;
+        value = param1.data;
 
-        if (param1.name == "AC1")
-            ac1 -= value;
-        else if (param1.name == "AC2")
-            ac2 -= value;
-        else if (param1.name == "AC3")
-            ac3 -= value;
-        else
-            Debug.LogError("It was not possible to add because first parameter needs to receive an Accumulator");
+        ac1 -= value;
 
-        //falta testar se começa com # ou se é um endereço
         return pc + 2;
     }
 

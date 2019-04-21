@@ -2,8 +2,8 @@
 X: #130, #8
 Y: #131, #16
 R: #132, #0
-G: #133, #0
-B: #134, #170
+G: #133, #150
+B: #134, #0
 .enddata
 
 .code
@@ -24,23 +24,47 @@ JZ AC1 27
 JMP 0
 
 LD X
-SUB #8
-ST X
+LD2 Y
+POS
+LD R
+LD2 G
+LD3 B
+PXL
 LD Y
 SUB #1
 ST Y
+SUB #8
+JZ AC1 54
+JMP 27
+
 LD X
 LD2 Y
 POS
 LD R
 LD2 G
 LD3 B
-
-LD Y
-SUB #8
-JZ AC1 63
 PXL
-JMP 0
+LD X
+SUB #1
+ST X
+SUB #8
+JZ AC1 81
+JMP 54
+
+LD X
+LD2 Y
+POS
+LD R
+LD2 G
+LD3 B
+PXL
+LD Y
+ADD #1
+ST Y
+SUB #16
+JZ AC1 108
+JMP 81
+
 HALT
 
 .endcode
