@@ -1,0 +1,25 @@
+.data
+X: #130, #0
+Y: #131, #0
+R: #132, #0
+G: #133, #0
+B: #134, #255
+.enddata
+
+.code
+
+
+IN X
+IN Y
+LD X
+LD2 Y
+POS
+LD R
+LD2 G
+LD3 B
+PXL
+JMP 0
+
+HALT
+
+.endcode
