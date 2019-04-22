@@ -4,6 +4,8 @@ Y: #131, #16
 R: #132, #0
 G: #133, #0
 B: #134, #170
+MIN: #135, #0
+MAX: #136, #1
 .enddata
 
 .code
@@ -12,6 +14,11 @@ B: #134, #170
 LD X
 LD2 Y
 POS
+LD MIN
+LD2 MAX
+RND R
+RND G
+RND B
 LD R
 LD2 G
 LD3 B
@@ -20,7 +27,7 @@ LD X
 ADD #1
 ST X
 SUB #16
-JZ AC1 27
+JZ AC1 35
 JMP 0
 
 LD X
@@ -29,17 +36,8 @@ ST X
 LD Y
 SUB #1
 ST Y
-LD X
-LD2 Y
-POS
-LD R
-LD2 G
-LD3 B
-
-LD Y
 SUB #8
-JZ AC1 63
-PXL
+JZ AC1 54
 JMP 0
 HALT
 

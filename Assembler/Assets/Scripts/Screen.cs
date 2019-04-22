@@ -15,8 +15,9 @@ public class Screen : MonoBehaviour
         textureSize.y = GetComponent<RectTransform>().rect.height;
 
         texture = new Texture2D((int)textureSize.x, (int)textureSize.y);
-
-
+        texture.filterMode = FilterMode.Point;
+        //texture.Compress(false);
+        
 
         Sprite sprite = Sprite.Create(texture, new Rect(0, 0, textureSize.x, textureSize.y), Vector2.zero);
 
@@ -42,7 +43,7 @@ public class Screen : MonoBehaviour
         drawingCursor.GetComponent<RectTransform>().localPosition = new Vector2(drawingCursorPosition.x, drawingCursorPosition.y);
     }
 
-    public void DrawPixel(int r, int g, int b)
+    public void DrawPixel(float r, float g, float b)
     {
         Color color = new Color(r, g, b);
         SetPixel(drawingCursorPosition.x, drawingCursorPosition.y, color);

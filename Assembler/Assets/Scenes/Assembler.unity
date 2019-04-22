@@ -28648,7 +28648,7 @@ RectTransform:
   m_GameObject: {fileID: 1186833874}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalScale: {x: 4, y: 4, z: 1}
   m_Children:
   - {fileID: 1328191823}
   m_Father: {fileID: 1175951196}
@@ -28657,7 +28657,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -235, y: 48.5}
-  m_SizeDelta: {x: 64, y: 64}
+  m_SizeDelta: {x: 32, y: 32}
   m_Pivot: {x: 0, y: 0}
 --- !u!114 &1186833876
 MonoBehaviour:
@@ -46326,6 +46326,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c93112bcc47a82a4fb8f0cc5354d4b44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  fileName: NotFilled
   variablePanel: {fileID: 1450217069}
   variableSectionPrefab: {fileID: 6559843467255779335, guid: 2c133c99bb984964b8c742cc093e681f,
     type: 3}

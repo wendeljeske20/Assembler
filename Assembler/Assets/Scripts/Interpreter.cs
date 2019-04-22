@@ -7,12 +7,13 @@ using System;
 
 public class Interpreter : MonoBehaviour
 {
-
+    public string fileName;
     int startDataIndex = 0, endDataIndex = 0, startCodeIndex = 0, endCodeIndex = 0;
 
     public GameObject variablePanel;
     public GameObject variableSectionPrefab;
     List<GameObject> varSections = new List<GameObject>();
+
 
     //public Image cursor;
     public float updateInterval;
@@ -50,7 +51,7 @@ public class Interpreter : MonoBehaviour
             memories[i] = memorySlot[i].GetComponent<Memory>();
         }
 
-        ReadFile(Application.dataPath + "/text.txt");
+        ReadFile(Application.dataPath + "/" + fileName + ".txt");
         StoreInstructionsInMemory();
 
         StartCoroutine(Decode());
@@ -203,7 +204,7 @@ public class Interpreter : MonoBehaviour
     int Rnd(Memory memory)
     {
         int readPos = variables[memory.name];
-        memories[readPos].data = UnityEngine.Random.Range((int)ac1,(int)ac2);
+        memories[readPos].data = UnityEngine.Random.Range(ac1,ac2);
         return pc + 1;
     }
 
@@ -284,7 +285,7 @@ public class Interpreter : MonoBehaviour
 
         ac1 += value;
 
-        return pc + 2;
+        return pc + 1;
     }
 
     int Sub(Memory param1)
@@ -296,7 +297,7 @@ public class Interpreter : MonoBehaviour
 
         ac1 -= value;
 
-        return pc + 2;
+        return pc + 1;
     }
 
     int Pos()
@@ -308,7 +309,7 @@ public class Interpreter : MonoBehaviour
     }
     int Pxl()
     {
-        screen.DrawPixel((int)ac1, (int)ac2, (int)ac3);
+        screen.DrawPixel(ac1, ac2, ac3);
         return pc;
     }
 

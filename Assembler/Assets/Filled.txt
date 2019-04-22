@@ -1,0 +1,37 @@
+.data
+X: #130, #8
+Y: #131, #16
+R: #132, #0
+G: #133, #0
+B: #134, #170
+.enddata
+
+.code
+
+
+LD X
+LD2 Y
+POS
+LD R
+LD2 G
+LD3 B
+PXL
+LD X
+ADD #1
+ST X
+SUB #16
+JZ AC1 25
+JMP 0
+
+LD X
+SUB #8
+ST X
+LD Y
+SUB #1
+ST Y
+SUB #8
+JZ AC1 58
+JMP 0
+HALT
+
+.endcode
